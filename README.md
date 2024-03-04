@@ -1,1 +1,1 @@
-To start the game, compile it and do ./gamefile.exe savegame.txt
+To start the game, compile it and type in ./gamefile.exe savegame.txt
