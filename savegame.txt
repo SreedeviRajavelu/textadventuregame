@@ -1,0 +1,11 @@
+Class,Item,Howmany,HP
+Warrior,Key,1,180
+-,Potion,2,-
+-,Sword,1,-
+-,Shield,1,-
+-,Helmet,1,-
+-,Null,0,-
+-,Null,0,-
+-,Null,0,-
+-,Null,0,-
+-,Null,0,-
