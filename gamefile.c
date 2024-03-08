@@ -18,19 +18,40 @@ typedef struct
         char itemName[50];
         int quantity;
     } items[10]; // Struct inside another struct. As of now, we only have 10 items. Player.items[0] = first item!
+    char location[50];
+    char spells[50];
+    char check[50];
+    int level;
+    int wins;
+    int loss;
 } Player;
 
-void save_game(Player *player, const char *filename)
+void save_game(Player *player, const char *filename, const char *csvfilename) /* currently need 3rd argument for csv file name can later be used as the same as textfile */
 {
     FILE *file = fopen(filename, "w");
+    FILE *csvfile = fopen(csvfilename, "w"); /* to write to csvfile*/
+
+    // FILE *file = fopen(filename, "a");       // Open in append mode to preserve existing data
+    // FILE *csvfile = fopen(csvfilename, "a"); // Open in append mode to preserve existing data
+
     if (file == NULL)
     {
         perror("Error opening file");
         return;
     }
 
-    // Writing header
+    if (csvfile == NULL)
+    {
+        perror("Error opening csvfile");
+        return;
+    }
+
+    // Writing header to textfile
     fprintf(file, "Class,Item,Howmany,HP\n");
+
+    // /*Writing header to csvfile*/
+    fprintf(csvfile, "%s,%s, %s, %s,%s,%s, %s, %s,%s, %s\n",
+            "Class", "Item", "Howmany", "HP", "Location", "Spells", "Check", "Level", "Wins", "Loss");
 
     // Writing player data to file
     for (int i = 0; i < 10; i++)
@@ -38,16 +59,28 @@ void save_game(Player *player, const char *filename)
         if (i == 0)
         {
             // Write class and HP only once, in the first line
-            fprintf(file, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
+            fprintf(file, "%s,%s,%d,%d, %s, %s, %s, %d, %d, %d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp, player->location, player->spells, player->check, player->level, player->wins, player->loss);
+
+            /* writing to csv file*/
+            // fprintf(csvfile, "%s,%s, %s, %s\n",
+            //         player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
+
+            // Write class and HP only once, in the first line
+            fprintf(csvfile, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp, player->location, player->spells, player->check, player->level, player->wins, player->loss);
         }
         else
         {
             // Write only item details in subsequent lines
             fprintf(file, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
+
+            // Write only item details in subsequent lines
+            fprintf(csvfile, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
         }
     }
 
     fclose(file);
+
+    fclose(csvfile);
 }
 
 int load_game(Player *player, const char *filename)
@@ -78,43 +111,58 @@ int load_game(Player *player, const char *filename)
 
 int main(int argc, char const *argv[])
 {
-
-    if (argc != 2)
+    if (argc != 3)
     {
         printf("You did not enter the right number of parameters. Ending program.");
         return 1;
     }
 
     const char *filename = argv[1];
-    char playerchoice[20];
+    const char *csvfile = argv[2];
+    char playerchoice[50]; // Increased buffer size to accommodate longer item names
     int keeplaying = 1;
     Player player;
     load_game(&player, filename);
     printf("Welcome!\n");
-    printf("Your current HP is: %d \n", player.hp);
+    printf("Your current HP is: %d\n", player.hp);
 
     while (keeplaying)
     {
         printf("What will you do now?\n");
-        fgets(playerchoice, 256, stdin);
-        // playerchoice[strcspn(playerchoice, "\n")] = 0;
+        fgets(playerchoice, sizeof(playerchoice), stdin);
+        playerchoice[strcspn(playerchoice, "\n")] = '\0'; // Remove trailing newline
 
-        playerchoice[strlen(playerchoice) - 1] = 0; // we remove the newline
-        if (strcmp(playerchoice, "Quit") == 0)      // we use strcmp here.
+        if (strcmp(playerchoice, "Quit") == 0 || strcmp(playerchoice, "quit") == 0)
         {
             keeplaying = 0;
             printf("You quit the game!\n");
         }
-
-        if (strcmp(playerchoice, "Save") == 0)
+        else if (strcmp(playerchoice, "Save") == 0 || strcmp(playerchoice, "save") == 0)
         {
-            save_game(&player, filename);
+            save_game(&player, filename, csvfile);
         }
-
-        if (strcmp(playerchoice, "Battle") == 0)
+        else if (strcmp(playerchoice, "Battle") == 0 || strcmp(playerchoice, "battle") == 0)
         {
-            player.hp = player.hp + 10;
+            player.hp += 10;
             printf("You battled some monsters and gained 10 more health!\n");
+        }
+        else // Assume it's an item name
+        {
+            int found = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                if (strcmp(playerchoice, player.items[i].itemName) == 0)
+                {
+                    player.items[i].quantity++;
+                    printf("You obtained %s!\n", playerchoice);
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                printf("Item not found!\n");
+            }
         }
     }
     return 0;
