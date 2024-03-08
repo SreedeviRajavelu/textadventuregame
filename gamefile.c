@@ -26,31 +26,82 @@ typedef struct
     int loss;
 } Player;
 
-void save_game(Player *player, const char *filename, const char *csvfilename) /* currently need 3rd argument for csv file name can later be used as the same as textfile */
+// /* SREE DEVI & KIA HWEE CODE*/
+// void save_game(Player *player, const char *filename, const char *csvfilename) /* currently need 3rd argument for csv file name can later be used as the same as textfile */
+// {
+//     FILE *file = fopen(filename, "w");
+//     FILE *csvfile = fopen(csvfilename, "w"); /* to write to csvfile*/
+
+//     // FILE *file = fopen(filename, "a");       // Open in append mode to preserve existing data
+//     // FILE *csvfile = fopen(csvfilename, "a"); // Open in append mode to preserve existing data
+
+//     if (file == NULL)
+//     {
+//         perror("Error opening file");
+//         return;
+//     }
+
+//     if (csvfile == NULL)
+//     {
+//         perror("Error opening csvfile");
+//         return;
+//     }
+
+//     // Writing header to textfile
+//     fprintf(file, "Class,Item,Howmany,HP\n");
+
+//     // /*Writing header to csvfile*/
+//     fprintf(csvfile, "%s,%s, %s, %s,%s,%s, %s, %s,%s, %s\n",
+//             "Class", "Item", "Howmany", "HP", "Location", "Spells", "Check", "Level", "Wins", "Loss");
+
+//     // Writing player data to file
+//     for (int i = 0; i < 10; i++)
+//     {
+//         if (i == 0)
+//         {
+//             // Write class and HP only once, in the first line
+//             fprintf(file, "%s,%s,%d,%d, %s, %s, %s, %d, %d, %d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp, player->location, player->spells, player->check, player->level, player->wins, player->loss);
+
+//             /* writing to csv file*/
+//             // fprintf(csvfile, "%s,%s, %s, %s\n",
+//             //         player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
+
+//             // Write class and HP only once, in the first line
+//             fprintf(csvfile, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp, player->location, player->spells, player->check, player->level, player->wins, player->loss);
+//         }
+//         else
+//         {
+//             // Write only item details in subsequent lines
+//             fprintf(file, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
+
+//             // Write only item details in subsequent lines
+//             fprintf(csvfile, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
+//         }
+//     }
+
+//     fclose(file);
+
+//     fclose(csvfile);
+// }
+
+/* GPT CODE FOR SAVE_GAME FUNCTION*/
+
+void save_game(Player *player, const char *filename, const char *csvfilename)
 {
     FILE *file = fopen(filename, "w");
-    FILE *csvfile = fopen(csvfilename, "w"); /* to write to csvfile*/
+    FILE *csvfile = fopen(csvfilename, "w");
 
-    // FILE *file = fopen(filename, "a");       // Open in append mode to preserve existing data
-    // FILE *csvfile = fopen(csvfilename, "a"); // Open in append mode to preserve existing data
-
-    if (file == NULL)
+    if (file == NULL || csvfile == NULL)
     {
         perror("Error opening file");
         return;
     }
 
-    if (csvfile == NULL)
-    {
-        perror("Error opening csvfile");
-        return;
-    }
-
     // Writing header to textfile
-    fprintf(file, "Class,Item,Howmany,HP\n");
+    fprintf(file, "Class,Item,Howmany,HP,Location,Spells,Check,Level,Wins,Loss\n");
 
-    // /*Writing header to csvfile*/
-    fprintf(csvfile, "%s,%s, %s, %s,%s,%s, %s, %s,%s, %s\n",
+    // Writing header to csvfile
+    fprintf(csvfile, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
             "Class", "Item", "Howmany", "HP", "Location", "Spells", "Check", "Level", "Wins", "Loss");
 
     // Writing player data to file
@@ -58,28 +109,41 @@ void save_game(Player *player, const char *filename, const char *csvfilename) /*
     {
         if (i == 0)
         {
-            // Write class and HP only once, in the first line
-            fprintf(file, "%s,%s,%d,%d, %s, %s, %s, %d, %d, %d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp, player->location, player->spells, player->check, player->level, player->wins, player->loss);
+            // // Write class and HP only once, in the first line
+            // fprintf(file, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
 
-            /* writing to csv file*/
-            // fprintf(csvfile, "%s,%s, %s, %s\n",
-            //         player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
+            // Writing player data to csvfile, this code below will only work if there is a game logic to update location, spells, check, wins, loss, otherwise it will just output the address of the struct
+            // fprintf(file, "%s,%s,%d,%d,%s,%s,%s,%d,%d,%d\n",
+            //         player->class, player->items[i].itemName, player->items[i].quantity, player->hp,
+            //         player->location, player->spells, player->check, player->level, player->wins, player->loss);
 
             // Write class and HP only once, in the first line
-            fprintf(csvfile, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp, player->location, player->spells, player->check, player->level, player->wins, player->loss);
+            fprintf(file, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
+
+            // Writing player data to csvfile, this code below will only work if there is a game logic to update location, spells, check, wins, loss, otherwise it will just output the address of the struct
+            // fprintf(csvfile, "%s,%s,%d,%d,%s,%s,%s,%d,%d,%d\n",
+            //         player->class, player->items[i].itemName, player->items[i].quantity, player->hp,
+            //         player->location, player->spells, player->check, player->level, player->wins, player->loss);
+
+            fprintf(csvfile, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
         }
         else
         {
             // Write only item details in subsequent lines
             fprintf(file, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
 
-            // Write only item details in subsequent lines
             fprintf(csvfile, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
         }
     }
 
-    fclose(file);
+    // // Writing item details to file
+    // for (int i = 1; i < 10; i++)
+    // {
+    //     fprintf(file, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
+    //     fprintf(csvfile, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
+    // }
 
+    fclose(file);
     fclose(csvfile);
 }
 

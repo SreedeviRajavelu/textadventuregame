@@ -1,9 +1,9 @@
-Class,Item,Howmany,HP
-Warrior,Key,1,190,  , pxþ, þ, -1976498336, 477, 2020596998
--,Potion,3,-
--,Sword,1,-
--,Shield,1,-
--,Helmet,1,-
+Class,Item,Howmany,HP,Location,Spells,Check,Level,Wins,Loss
+Warrior,Key,1,30
+-,Potion,1,-
+-,Sword,3,-
+-,Shield,3,-
+-,Helmet,0,-
 -,Null,0,-
 -,Null,0,-
 -,Null,0,-
