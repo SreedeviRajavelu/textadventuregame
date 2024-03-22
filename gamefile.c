@@ -13,78 +13,25 @@ typedef struct
 {
     char class[50];
     int hp;
+    int maxhp;
+    int level;
+    int gold;
+    int moxie;
+    int magic;
+    int str;
+    int mana;
+    int maxmana;
     struct
     {
         char itemName[50];
         int quantity;
+        char location[50];
+        char spells[50];
+        int check;
+        int wins;
+        int loss;
     } items[10]; // Struct inside another struct. As of now, we only have 10 items. Player.items[0] = first item!
-    char location[50];
-    char spells[50];
-    char check[50];
-    int level;
-    int wins;
-    int loss;
 } Player;
-
-// /* SREE DEVI & KIA HWEE CODE*/
-// void save_game(Player *player, const char *filename, const char *csvfilename) /* currently need 3rd argument for csv file name can later be used as the same as textfile */
-// {
-//     FILE *file = fopen(filename, "w");
-//     FILE *csvfile = fopen(csvfilename, "w"); /* to write to csvfile*/
-
-//     // FILE *file = fopen(filename, "a");       // Open in append mode to preserve existing data
-//     // FILE *csvfile = fopen(csvfilename, "a"); // Open in append mode to preserve existing data
-
-//     if (file == NULL)
-//     {
-//         perror("Error opening file");
-//         return;
-//     }
-
-//     if (csvfile == NULL)
-//     {
-//         perror("Error opening csvfile");
-//         return;
-//     }
-
-//     // Writing header to textfile
-//     fprintf(file, "Class,Item,Howmany,HP\n");
-
-//     // /*Writing header to csvfile*/
-//     fprintf(csvfile, "%s,%s, %s, %s,%s,%s, %s, %s,%s, %s\n",
-//             "Class", "Item", "Howmany", "HP", "Location", "Spells", "Check", "Level", "Wins", "Loss");
-
-//     // Writing player data to file
-//     for (int i = 0; i < 10; i++)
-//     {
-//         if (i == 0)
-//         {
-//             // Write class and HP only once, in the first line
-//             fprintf(file, "%s,%s,%d,%d, %s, %s, %s, %d, %d, %d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp, player->location, player->spells, player->check, player->level, player->wins, player->loss);
-
-//             /* writing to csv file*/
-//             // fprintf(csvfile, "%s,%s, %s, %s\n",
-//             //         player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
-
-//             // Write class and HP only once, in the first line
-//             fprintf(csvfile, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp, player->location, player->spells, player->check, player->level, player->wins, player->loss);
-//         }
-//         else
-//         {
-//             // Write only item details in subsequent lines
-//             fprintf(file, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
-
-//             // Write only item details in subsequent lines
-//             fprintf(csvfile, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
-//         }
-//     }
-
-//     fclose(file);
-
-//     fclose(csvfile);
-// }
-
-/* GPT CODE FOR SAVE_GAME FUNCTION*/
 
 void save_game(Player *player, const char *filename, const char *csvfilename)
 {
@@ -98,11 +45,11 @@ void save_game(Player *player, const char *filename, const char *csvfilename)
     }
 
     // Writing header to textfile
-    fprintf(file, "Class,Item,Howmany,HP,Location,Spells,Check,Level,Wins,Loss\n");
+    fprintf(file, "Class,Item,Howmany,HP,MaxHP,Gold,Level,Moxie,Magic,Str,Mana,MaxMana,Spells,Check,Location,Wins,Loss\n");
 
     // Writing header to csvfile
-    fprintf(csvfile, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
-            "Class", "Item", "Howmany", "HP", "Location", "Spells", "Check", "Level", "Wins", "Loss");
+    fprintf(csvfile, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+            "Class", "Item", "Howmany", "HP", "MaxHP", "Level", "Moxie", "Magic", "Str", "Mana", "MaxMana", "Spells", "Check", "Location", "Wins", "Loss");
 
     // Writing player data to file
     for (int i = 0; i < 10; i++)
@@ -118,21 +65,55 @@ void save_game(Player *player, const char *filename, const char *csvfilename)
             //         player->location, player->spells, player->check, player->level, player->wins, player->loss);
 
             // Write class and HP only once, in the first line
-            fprintf(file, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
+            fprintf(file, "%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d,%s,%d,%d\n",
+                    player->class,
+                    player->items[i].itemName,
+                    player->items[i].quantity,
+                    player->hp,
+                    player->maxhp,
+                    player->gold,
+                    player->level,
+                    player->moxie,
+                    player->magic,
+                    player->str,
+                    player->mana,
+                    player->maxmana,
+                    player->items[i].spells,
+                    player->items[i].check,
+                    player->items[i].location,
+                    player->items[i].wins,
+                    player->items[i].loss);
 
             // Writing player data to csvfile, this code below will only work if there is a game logic to update location, spells, check, wins, loss, otherwise it will just output the address of the struct
             // fprintf(csvfile, "%s,%s,%d,%d,%s,%s,%s,%d,%d,%d\n",
             //         player->class, player->items[i].itemName, player->items[i].quantity, player->hp,
             //         player->location, player->spells, player->check, player->level, player->wins, player->loss);
 
-            fprintf(csvfile, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
+            fprintf(csvfile, "%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d,%s,%d,%d\n",
+                    player->class,
+                    player->items[i].itemName,
+                    player->items[i].quantity,
+                    player->hp,
+                    player->maxhp,
+                    player->gold,
+                    player->level,
+                    player->moxie,
+                    player->magic,
+                    player->str,
+                    player->mana,
+                    player->maxmana,
+                    player->items[i].spells,
+                    player->items[i].check,
+                    player->items[i].location,
+                    player->items[i].wins,
+                    player->items[i].loss);
         }
         else
         {
             // Write only item details in subsequent lines
-            fprintf(file, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
+            fprintf(file, "-,%s,%d,-,-,-,-,-,-,-,-,-,%s,%d,%s,%d,%d\n", player->items[i].itemName, player->items[i].quantity, player->items[i].spells, player->items[i].check, player->items[i].location, player->items[i].wins, player->items[i].loss);
 
-            fprintf(csvfile, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
+            fprintf(csvfile, "-,%s,%d,-,-,-,-,-,-,-,-,-,%s,%d,%s,%d,%d\n", player->items[i].itemName, player->items[i].quantity, player->items[i].spells, player->items[i].check, player->items[i].location, player->items[i].wins, player->items[i].loss);
         }
     }
 
@@ -160,13 +141,38 @@ int load_game(Player *player, const char *filename)
     // Skipping the header
     fgets(buffer, 128, file);
 
-    // Reading first line with class and HP
-    fscanf(file, "%49[^,],%49[^,],%d,%d\n", player->class, player->items[0].itemName, &player->items[0].quantity, &player->hp); //%49. Max character to be saved is 49!
+    // Reading first line with class, HP, MaxHP...MaxMana
+    fscanf(file, "%49[^,],%49[^,],%d,%d,%d,%d,%d,%d,%d,%d,%d,%49[^,],%d,%49[^,],%d,%d\n",
+           player->class,              // %s - string
+           player->items[0].itemName,  // %s - string
+           &player->items[0].quantity, // %d - integer
+           &player->hp,                // %d - integer
+           &player->maxhp,             // %d - integer
+           &player->level,             // %d - integer
+           &player->gold,              // %d - integer
+           &player->moxie,             // %d - integer
+           &player->magic,             // %d - integer
+           &player->str,               // %d - integer
+           &player->mana,              // %d - integer
+           &player->maxmana,           // %d - integer
+           player->items[0].spells,    // %s - string
+           &player->items[0].check,    // %d - integer
+           player->items[0].location,  // %s - string
+           &player->items[0].wins,     // %d - integer
+           &player->items[0].loss);    // %d - integer
 
     // Reading remaining item details
     for (int i = 1; i < 10; i++)
     {
-        fscanf(file, "%*[^,],%49[^,],%d,%*[^,\n]\n", player->items[i].itemName, &player->items[i].quantity); //%* means to skip this part. We don't want to read the first and last columns!
+        fscanf(file, "%*[^,],%49[^,],%d,%*d,%*d,%*d,%*d,%*d,%*d,%*d,%*d,%*d,%49[^,],%d,%49[^,],%d,%d\n",
+               player->items[i].itemName,  // %s - string
+               &player->items[i].quantity, // %d - integer
+               // Skipping several integer fields
+               player->items[i].spells,   // %s - string
+               &player->items[i].check,   // %d - integer
+               player->items[i].location, // %s - string
+               &player->items[i].wins,    // %d - integer
+               &player->items[i].loss);   // %d - integer
     }
 
     fclose(file);
@@ -210,24 +216,24 @@ int main(int argc, char const *argv[])
             player.hp += 10;
             printf("You battled some monsters and gained 10 more health!\n");
         }
-        else // Assume it's an item name
-        {
-            int found = 0;
-            for (int i = 0; i < 10; i++)
-            {
-                if (strcmp(playerchoice, player.items[i].itemName) == 0)
-                {
-                    player.items[i].quantity++;
-                    printf("You obtained %s!\n", playerchoice);
-                    found = 1;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                printf("Item not found!\n");
-            }
-        }
+        // else // Assume it's an item name
+        // {
+        //     int found = 0;
+        //     for (int i = 0; i < 10; i++)
+        //     {
+        //         if (strcmp(playerchoice, player.items[i].itemName) == 0)
+        //         {
+        //             player.items[i].quantity++;
+        //             printf("You obtained %s!\n", playerchoice);
+        //             found = 1;
+        //             break;
+        //         }
+        //     }
+        //     if (!found)
+        //     {
+        //         printf("Item not found!\n");
+        //     }
+        // }
     }
     return 0;
 }

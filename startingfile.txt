@@ -1,12 +1,11 @@
-Class,Item,Howmany,HP,Location,Spells,Check,Level,Wins,Loss
-Warrior,Key,1,0
--,Potion,2,-
--,Sword,1,-
--,Shield,1,-
--,Helmet,1,-
--,Null,0,-
--,Null,0,-
--,Null,0,-
--,Null,0-
--,Null,0,-
--,Null,0,-
+Class,Item,Howmany,HP,MaxHP,Gold,Level,Moxie,Magic,Str,Mana,MaxMana,Spells,Check,Location,Wins,Loss
+Warrior,Key,0,100,100,50,1,20,20,20,50,50,Fireball,0,GreenWood,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,Lightning,0,Graveyard,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,Great Slash,0,Forest,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,Bullet Barrage,0,Volcano,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,Heaven Heal,0,Castle,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,Blood Slash,0,Fairy Trove,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,Critical Strike,0,Goblin Cave,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,All or Nothing,0,DragonNest,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,Dragon Punch,0,Valley,0,0
+-,-,0,-,-,-,-,-,-,-,-,-,Pyroblast,0,Final Dungeon,0,0
