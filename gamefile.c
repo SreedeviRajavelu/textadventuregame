@@ -1,5 +1,72 @@
 #include <stdio.h>
 #include <string.h>
+#include "pbPlots.h"
+#include "supportLib.h"
+
+#define MAX_ITEMS 10
+#define MAX_LABEL_LENGTH 50
+#define MAX_CSV_LINE_LENGTH 256
+
+typedef struct
+{
+    char itemName[MAX_LABEL_LENGTH];
+    int quantity;
+} Item;
+
+// Function to draw a bar graph based on game state
+void draw_graph(const char *csvfilename)
+{
+    // implement logic to draw the bar graph based on the data in the CSV file
+    printf("Drawing the bar graph based on data from %s\n", csvfilename);
+    // bar graph drawing code here
+    FILE *csvfile = fopen(csvfilename, "r");
+    if (csvfile == NULL)
+    {
+        perror("Error opening CSV file");
+        return;
+    }
+    // Skip header line
+    char header[MAX_CSV_LINE_LENGTH];
+    fgets(header, sizeof(header), csvfile);
+
+    // Read item data from CSV file
+    Item items[MAX_ITEMS];
+    int itemCount = 0;
+    while (itemCount < MAX_ITEMS && fscanf(csvfile, "%49[^,],%d\n", items[itemCount].itemName, &items[itemCount].quantity) == 2)
+    {
+        itemCount++;
+    }
+    // Close the CSV file
+    fclose(csvfile);
+
+    // Initialize plot
+    RGBABitmapImageReference *imageRef = CreateRGBABitmapImageReference();
+    DrawContext *drawContext = CreateDrawContext(600, 400);
+    ScatterPlotSeries *series = CreateScatterPlotSeries(CreateColor(1, 0, 0, 1), 10, true, items, itemCount);
+
+    // Create plot
+    ScatterPlotSettings *settings = CreateDefaultScatterPlotSettings();
+    settings->width = 600;
+    settings->height = 400;
+    settings->autoBoundaries = false;
+    settings->xLabel = "Items";
+    settings->yLabel = "Quantity";
+    settings->scatterPlotSeries = &series;
+    settings->scatterPlotSeriesLength = 1;
+    settings->title = "Game Inventory Bar Graph";
+
+    // Draw plot
+    DrawScatterPlotFromSettings(imageRef, drawContext, settings);
+    WriteImageAsPNG(imageRef, "bar_graph.png");
+
+    // Free resources
+    free(imageRef->image->imagePixels);
+    free(imageRef->image);
+    free(imageRef);
+    free(drawContext);
+    free(series);
+    free(settings);
+}
 
 // You can run the game with ./gamefile.exe <filehere> | <filehere> is only csv formatted file for the game. Try savegame.text.
 void flush_input() // this code just 'flushes' the buffer to prevent overflow. Maybe unnecessary?
@@ -209,6 +276,10 @@ int main(int argc, char const *argv[])
         {
             player.hp += 10;
             printf("You battled some monsters and gained 10 more health!\n");
+        }
+        else if (strcmp(playerchoice, "graph") == 0)
+        {
+            draw_graph(csvfile); // draw the bar graph
         }
         else // Assume it's an item name
         {
