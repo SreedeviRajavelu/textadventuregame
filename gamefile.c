@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <regex.h>
+#include <stdbool.h>
 
 // You can run the game with ./gamefile.exe <filehere> | <filehere> is only csv formatted file for the game. Try savegame.text.
 void flush_input() // this code just 'flushes' the buffer to prevent overflow. Maybe unnecessary?
@@ -48,8 +50,10 @@ void save_game(Player *player, const char *filename, const char *csvfilename)
     fprintf(file, "Class,Item,Howmany,HP,MaxHP,Gold,Level,Moxie,Magic,Str,Mana,MaxMana,Spells,Check,Location,Wins,Loss\n");
 
     // Writing header to csvfile
-    fprintf(csvfile, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
-            "Class", "Item", "Howmany", "HP", "MaxHP", "Level", "Moxie", "Magic", "Str", "Mana", "MaxMana", "Spells", "Check", "Location", "Wins", "Loss");
+    fprintf(csvfile, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+            "Class", "Item", "Howmany", "HP", "MaxHP", "Gold", "Level",
+            "Moxie", "Magic", "Str", "Mana", "MaxMana", "Spells",
+            "Check", "Location", "Wins", "Loss");
 
     // Writing player data to file
     for (int i = 0; i < 10; i++)
@@ -60,9 +64,6 @@ void save_game(Player *player, const char *filename, const char *csvfilename)
             // fprintf(file, "%s,%s,%d,%d\n", player->class, player->items[i].itemName, player->items[i].quantity, player->hp);
 
             // Writing player data to csvfile, this code below will only work if there is a game logic to update location, spells, check, wins, loss, otherwise it will just output the address of the struct
-            // fprintf(file, "%s,%s,%d,%d,%s,%s,%s,%d,%d,%d\n",
-            //         player->class, player->items[i].itemName, player->items[i].quantity, player->hp,
-            //         player->location, player->spells, player->check, player->level, player->wins, player->loss);
 
             // Write class and HP only once, in the first line
             fprintf(file, "%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d,%s,%d,%d\n",
@@ -117,13 +118,6 @@ void save_game(Player *player, const char *filename, const char *csvfilename)
         }
     }
 
-    // // Writing item details to file
-    // for (int i = 1; i < 10; i++)
-    // {
-    //     fprintf(file, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
-    //     fprintf(csvfile, "-,%s,%d,-\n", player->items[i].itemName, player->items[i].quantity);
-    // }
-
     fclose(file);
     fclose(csvfile);
 }
@@ -142,7 +136,7 @@ int load_game(Player *player, const char *filename)
     fgets(buffer, 128, file);
 
     // Reading first line with class, HP, MaxHP...MaxMana
-    fscanf(file, "%49[^,],%49[^,],%d,%d,%d,%d,%d,%d,%d,%d,%d,%49[^,],%d,%49[^,],%d,%d\n",
+    fscanf(file, "%49[^,],%49[^,],%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%49[^,],%d,%49[^,],%d,%d\n",
            player->class,              // %s - string
            player->items[0].itemName,  // %s - string
            &player->items[0].quantity, // %d - integer
@@ -164,10 +158,10 @@ int load_game(Player *player, const char *filename)
     // Reading remaining item details
     for (int i = 1; i < 10; i++)
     {
-        fscanf(file, "%*[^,],%49[^,],%d,%*d,%*d,%*d,%*d,%*d,%*d,%*d,%*d,%*d,%49[^,],%d,%49[^,],%d,%d\n",
+        fscanf(file, "%*[^,],%49[^,],%d,%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%49[^,],%d,%49[^,],%d,%d\n",
                player->items[i].itemName,  // %s - string
                &player->items[i].quantity, // %d - integer
-               // Skipping several integer fields
+               // Skipping 9 integer fields
                player->items[i].spells,   // %s - string
                &player->items[i].check,   // %d - integer
                player->items[i].location, // %s - string
@@ -193,6 +187,65 @@ int main(int argc, char const *argv[])
     int keeplaying = 1;
     Player player;
     load_game(&player, filename);
+    if (strcmp(player.class, "NewPlayer\n")) // in this case, I don't want to remove the null terminated string. Checks if the Player is New
+    {
+        const char *patternW = "^(I (choose|pick|select|want) )?(Warrior|W|\\(W\\)|Warrior \\(W\\))$";
+        regex_t regexW;
+        int resultW = regcomp(&regexW, patternW, REG_EXTENDED | REG_NOSUB);
+
+        const char *patternM = "^(I (choose|pick|select|want) )?(Mage|M|\\(M\\)|Mage \\(M\\))$";
+        regex_t regexM;
+        int resultM = regcomp(&regexM, patternM, REG_EXTENDED | REG_NOSUB);
+
+        const char *patternT = "^(I (choose|pick|select|want) )?(Thief|T|\\(T\\)|Thief \\(T\\))$";
+        regex_t regexT;
+        int resultT = regcomp(&regexT, patternT, REG_EXTENDED | REG_NOSUB);
+        printf("Welcome to Fantasy Adventure. Choose your class: \n");
+        printf("Warrior (W), Mage (M), Thief (T) \n");
+        int validclassflag = 1;
+        while (validclassflag)
+        {
+            fgets(playerchoice, sizeof(playerchoice), stdin);
+            playerchoice[strcspn(playerchoice, "\n")] = '\0'; // Remove trailing newline
+            resultW = regexec(&regexW, playerchoice, 0, NULL, 0);
+
+            if (resultW == 0)
+            {
+                strcpy(player.class, "Warrior");
+                validclassflag = 0;
+                player.str += 10;
+                regfree(&regexW);
+                regfree(&regexM);
+                regfree(&regexT);
+                printf("Congrats, you are a Warrior!\n");
+            }
+
+            resultM = regexec(&regexM, playerchoice, 0, NULL, 0);
+
+            if (resultM == 0)
+            {
+                strcpy(player.class, "Mage");
+                validclassflag = 0;
+                player.magic += 10;
+                regfree(&regexW);
+                regfree(&regexM);
+                regfree(&regexT);
+                printf("Congrats, you are a Mage!\n");
+            }
+
+            resultT = regexec(&regexT, playerchoice, 0, NULL, 0);
+            if (resultT == 0)
+            {
+                strcpy(player.class, "Thief");
+                player.moxie += 10;
+                validclassflag = 0;
+                regfree(&regexW);
+                regfree(&regexM);
+                regfree(&regexT);
+                printf("Congrats, you are a Thief!\n");
+            }
+        }
+    }
     printf("Welcome!\n");
     printf("Your current HP is: %d\n", player.hp);
 
@@ -216,24 +269,6 @@ int main(int argc, char const *argv[])
             player.hp += 10;
             printf("You battled some monsters and gained 10 more health!\n");
         }
-        // else // Assume it's an item name
-        // {
-        //     int found = 0;
-        //     for (int i = 0; i < 10; i++)
-        //     {
-        //         if (strcmp(playerchoice, player.items[i].itemName) == 0)
-        //         {
-        //             player.items[i].quantity++;
-        //             printf("You obtained %s!\n", playerchoice);
-        //             found = 1;
-        //             break;
-        //         }
-        //     }
-        //     if (!found)
-        //     {
-        //         printf("Item not found!\n");
-        //     }
-        // }
     }
     return 0;
 }
