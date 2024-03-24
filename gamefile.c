@@ -232,6 +232,23 @@ int itemhave(Player *player, char *item) // This is a helper function to check i
     return 0;
 }
 
+int spellhave(Player *player, char *spell) // This is a helper function to check if the player has the right item.
+{
+    int i;
+    for (i = 0; i < 10; i++)
+    {
+        if (strcmp(player->items[i].spells, spell) == 0)
+        {
+            if (player->items[i].check > 0)
+            { // They have the spell
+                return 1;
+            }
+            return 0; // No item. Return 0
+        }
+    }
+    return 0;
+}
+
 typedef enum
 {
     INITIAL_STATE,  // We use a FSM to track enemy behaviour and to determine if the fight is over
@@ -244,6 +261,7 @@ typedef struct
     Enemybehaviour Current_State;
     int level;
     int enemyhp; // tracks the enemy's hp
+    char *pool;
     int enemymaxhp;
     int strength;
 } SpecificEnemy;
@@ -257,9 +275,10 @@ void init_enemy(SpecificEnemy *Enemy, int level)
     {
         difficulty = "Boss";
     }
+    Enemy->pool = difficulty;
     Enemy->level = level;
-    Enemy->enemyhp = level * 10;
-    Enemy->strength = level * 5;
+    Enemy->enemyhp = level * 20;
+    Enemy->strength = level * 2;
     if (strcmp(difficulty, "Easy"))
     {
         printf("You're fighting an easy enemy!\n");
@@ -268,28 +287,28 @@ void init_enemy(SpecificEnemy *Enemy, int level)
     else if (strcmp(difficulty, "Normal"))
     {
         printf("You're fighting a Normal enemy!\n");
-        Enemy->enemyhp += level * 1;
-        Enemy->strength += level * 1;
+        Enemy->enemyhp += level * 3;
+        Enemy->strength += level * 2 + 10;
     }
 
     else if (strcmp(difficulty, "Hard"))
     {
         printf("You're fighting a Hard enemy!\n");
-        Enemy->enemyhp += level * 3;
-        Enemy->strength += level * 3;
+        Enemy->enemyhp += level * 6;
+        Enemy->strength += level * 3 + 5;
     }
 
     else if (strcmp(difficulty, "Very Hard"))
     {
         printf("You're fighting a Very Hard enemy!\n");
-        Enemy->enemyhp += level * 4;
+        Enemy->enemyhp += level * 8;
         Enemy->strength += level * 4;
     }
 
     else if (strcmp(difficulty, "Boss"))
     {
         printf("You're fighting the final boss!\n");
-        Enemy->enemyhp += level * 5;
+        Enemy->enemyhp += level * 10;
         Enemy->strength += level * 5;
     }
     Enemy->enemymaxhp = Enemy->enemyhp; // We track the maxhp.
@@ -359,7 +378,7 @@ void Enemyattack(SpecificEnemy *Enemy, Player *player)
 
 void EnemyPleading(SpecificEnemy *Enemy, Player *player)
 {
-    int pleadsuccess = rand() % 100;
+    int pleadsuccess = rand() % 100 + player->moxie / 5;
     if (pleadsuccess > 50)
     {
         printf("You successfully convinced the enemy to surrender!\n");
@@ -378,11 +397,216 @@ void EnemyPleading(SpecificEnemy *Enemy, Player *player)
     }
 }
 
-void PlayerAttack(SpecificEnemy *Enemy, Player *player)
+void PlayerAttack(SpecificEnemy *Enemy, Player *player, int mode, int add) // mode = 1/2 1 = str 2 = magic
 {
-    int damagedealt = player->str + player->level * MoxieRoll(player);
-    printf("\nYou dealt: %d DAMAGE!\n", damagedealt);
+    int calc;
+    if (mode == 1)
+    {
+        calc = player->str + add;
+    }
+    else if (mode == 2)
+    {
+        calc = player->magic + add;
+    }
+    int damagedealt = calc + player->level * MoxieRoll(player);
+    printf("\nYou dealt: %d DAMAGE!\n\n", damagedealt);
     Enemy->enemyhp -= damagedealt;
+}
+
+int manaoverload(int manacost, int currentmana)
+{
+    if (manacost > currentmana)
+    {
+        return 1;
+    }
+    return 0;
+}
+void spellcast(SpecificEnemy *Enemy, Player *player, char *spell)
+{
+    printf("The spell casted was %s", spell);
+    if (!spellhave(player, spell))
+    {
+        printf("You don't have this spell! You fumbled and were attacked by the Enemy!"); // Spell rejected
+        return;
+    }
+    // if (strcmp(spell, "Fireball")) A mistake strcmp needs == 0
+    // {
+    //     printf("HUH??????????? %s", spell);
+    // }
+    if (strcmp(spell, "Fireball") == 0)
+    {
+        if (manaoverload(10, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        PlayerAttack(Enemy, player, 2, 10);
+        printf("Burn your opponents! %s was cast!\n", spell);
+        player->mana -= 10;
+    }
+
+    else if (strcmp(spell, "Lightning") == 0)
+    {
+        if (manaoverload(20, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        PlayerAttack(Enemy, player, 2, player->level * 5);
+        printf("Feel the power of lightning! %s was cast!\n", spell);
+        player->mana -= 20;
+    }
+
+    else if (strcmp(spell, "Great Slash") == 0)
+    {
+        if (manaoverload(15, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        PlayerAttack(Enemy, player, 1, 20);
+        printf("A powerful Slash! %s was cast!\n", spell);
+        player->mana -= 15;
+    }
+
+    else if (strcmp(spell, "Bullet Barrage") == 0)
+    {
+        if (manaoverload(15, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        int bulletsfired = rand() % 3 + 1;
+        int i;
+        for (i = 0; i < bulletsfired; i++)
+        {
+            PlayerAttack(Enemy, player, 1, -(player->str / 2));
+        }
+        printf("%s was cast! %d Bullets was fired!\n", spell, bulletsfired);
+        player->mana -= 15;
+    }
+
+    else if (strcmp(spell, "Heaven Heal") == 0)
+    {
+        int manacost = player->level * 2;
+        if (manaoverload(manacost, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        printf("Healed up! %s was cast!\n", spell);
+        player->mana -= manacost;
+        int Healamount = player->level * 10;
+        if (Healamount + player->hp > player->maxhp)
+        {
+            player->hp = player->maxhp;
+        }
+        else
+        {
+            player->hp += Healamount;
+        }
+    }
+
+    else if (strcmp(spell, "Blood Slash") == 0)
+    {
+        if (manaoverload(player->maxhp / 5, player->hp))
+        {
+            printf("Not enough hp to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        PlayerAttack(Enemy, player, 1, player->maxhp / 5);
+        printf("Sacrifice HP! %s was cast!\n", spell);
+        player->hp -= player->maxhp / 5;
+    }
+
+    else if (strcmp(spell, "Crit Strike") == 0)
+    {
+        if (manaoverload(30, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        player->moxie += 50;
+        PlayerAttack(Enemy, player, 1, 0);
+        printf("%s was cast! Increased Moxie by 50 to boost Crits!\n", spell);
+        player->moxie -= 50;
+        player->mana -= 30;
+    }
+
+    else if (strcmp(spell, "All or Nothing!") == 0)
+    {
+        if (manaoverload(20, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        int allroll = rand() % 2; // either 0 or 1
+        if (!allroll)
+        {
+            printf("Lost the 50/50! You built up too much power in charging %s! You fumbled!\n", spell);
+            player->mana -= 20;
+            return;
+        }
+        printf("ALL OR NOTHING! It's an ALLOUT ATTACK!\n");
+        PlayerAttack(Enemy, player, 1, player->str + player->magic + player->level);
+        printf("%s was cast!\n", spell);
+        player->mana -= 20;
+    }
+
+    else if (strcmp(spell, "Dragon Punch") == 0)
+    {
+        if (manaoverload(50, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        PlayerAttack(Enemy, player, 1, player->magic * 2);
+        printf("%s was cast! A Devestating blow!\n", spell);
+        player->mana -= 50;
+    }
+    else if (strcmp(spell, "Pyroblast") == 0)
+    {
+        if (manaoverload(120, player->mana))
+        {
+            printf("Not enough mana to cast %s! You fumbled!\n", spell);
+            return;
+        }
+        PlayerAttack(Enemy, player, 2, player->magic * 3);
+        printf("%s was cast! The greatest spell!!\n", spell);
+        player->mana -= 120;
+    }
+}
+
+void levelup(Player *player)
+{
+    printf("You leveled up!\n");
+    player->level++;
+    if (strcmp(player->class, "Warrior"))
+    {
+        player->str += rand() % 3 + 5;
+        player->magic += rand() % 1 + 1;
+        player->maxmana += 2;
+        player->moxie += rand() % 2 + 1;
+        player->maxhp += 20;
+    }
+
+    else if (strcmp(player->class, "Mage"))
+    {
+        player->str += rand() % 1 + 2;
+        player->magic += rand() % 3 + 3;
+        player->maxmana += 10;
+        player->moxie += rand() % 3 + 3;
+        player->maxhp += 10;
+    }
+
+    else if (strcmp(player->class, "Mage"))
+    {
+        player->str += rand() % 2 + 2;
+        player->magic += rand() % 2 + 2;
+        player->maxmana += 5;
+        player->moxie += rand() % 5 + 5;
+        player->maxhp += 8;
+    }
 }
 
 int main(int argc, char const *argv[])
@@ -398,6 +622,7 @@ int main(int argc, char const *argv[])
     char playerchoice[50]; // Increased buffer size to accommodate longer item names
     int keeplaying = 1;
     int keepchoosingbattle = 1;
+    int run;
     char *location;
     srand((time(NULL))); // we randomise a seed
     Player player;
@@ -480,6 +705,7 @@ int main(int argc, char const *argv[])
     {
         if (player.status == DEAD)
         {
+            printf("\nYou lost!");
             printf("You have been revived in the Town. Be careful next time!\n");
             player.hp = player.maxhp;
             player.mana = player.maxmana;
@@ -584,7 +810,7 @@ int main(int argc, char const *argv[])
                     }
                     else
                     {
-                        printf("You have NOT exchanged all keys for the Dungeon Key yet!");
+                        printf("You have NOT exchanged all keys for the Dungeon Key yet!\n");
                     }
                 }
                 else
@@ -593,26 +819,119 @@ int main(int argc, char const *argv[])
                     printf("\n");
                 }
             }
-            printf("You are fighting a foe from %s!\n", location);
+            printf("You're fighting a level %d foe from %s!\n", enemy.level, location);
             printf("Make your Move!\n");
             printf("\n");
             while (enemy.Current_State != DEFEATED_STATE && player.status == ALIVE) // while the enemy is still alive and the player is not dead!
             {
-                printf("Your current HP, and mana are: %d, %d\n", player.hp, player.mana);
-                printf("Enemy's current lvl is %d, HP is %d\n", enemy.level, enemy.enemyhp);
+                printf("\nYour current HP: %d\n", player.hp);
+                printf("Your current mana: %d\n", player.mana);
+                print_spell(&player);
+                printf("Enemy's current HP: %d\n", enemy.enemyhp);
+                // printf("INITIAL STATE: %d\n", enemy.Current_State);
+                printf("You can:\n");
+                printf("1 - Attack\n2 - Run\n");
+                if (enemy.Current_State == PLEADING_STATE)
+                {
+                    printf("3 - Spare your enemy! There is a %f chance it will work!\n", (float)(enemy.enemyhp) / (float)(enemy.enemymaxhp));
+                }
+                printf("Other - Use your spells! (Name Them)\n");
                 fgets(playerchoice, sizeof(playerchoice), stdin);
                 playerchoice[strcspn(playerchoice, "\n")] = '\0'; // Remove trailing newline
-                printf("INITIAL STATE: %d\n", enemy.Current_State);
-                PlayerAttack(&enemy, &player);
+                if (strcmp(playerchoice, "1") == 0 || strcmp(playerchoice, "Attack") == 0 || strcmp(playerchoice, "attack") == 0)
+                {
+                    PlayerAttack(&enemy, &player, 1, 0);
+                }
+                else if (strcmp(playerchoice, "2") == 0 || strcmp(playerchoice, "Run") == 0 || strcmp(playerchoice, "run") == 0)
+                {
+                    run = rand() % 10;
+                    if (run > 3)
+                    {
+                        printf("You escaped!\n");
+                        break;
+                    }
+                    printf("You tripped and fell!\n");
+                }
+                else if (strcmp(playerchoice, "Fireball") == 0 || strcmp(playerchoice, "fireball") == 0 || strcmp(playerchoice, "F") == 0 || strcmp(playerchoice, "f") == 0)
+                {
+                    spellcast(&enemy, &player, "Fireball");
+                }
+                else if (strcmp(playerchoice, "Lightning") == 0 || strcmp(playerchoice, "lightning") == 0 || strcmp(playerchoice, "L") == 0 || strcmp(playerchoice, "l") == 0)
+                {
+                    spellcast(&enemy, &player, "Lightning");
+                }
+                else if (strcmp(playerchoice, "Great Slash") == 0 || strcmp(playerchoice, "great slash") == 0 || strcmp(playerchoice, "GS") == 0 || strcmp(playerchoice, "gs") == 0)
+                {
+                    spellcast(&enemy, &player, "Great Slash");
+                }
+                else if (strcmp(playerchoice, "Bullet Barrage") == 0 || strcmp(playerchoice, "bullet barrage") == 0 || strcmp(playerchoice, "BB") == 0 || strcmp(playerchoice, "bb") == 0)
+                {
+                    spellcast(&enemy, &player, "Bullet Barrage");
+                }
+                else if (strcmp(playerchoice, "Heaven Heal") == 0 || strcmp(playerchoice, "heaven heal") == 0 || strcmp(playerchoice, "HH") == 0 || strcmp(playerchoice, "hh") == 0)
+                {
+                    spellcast(&enemy, &player, "Heaven Heal");
+                }
+                else if (strcmp(playerchoice, "Blood Slash") == 0 || strcmp(playerchoice, "blood slash") == 0 || strcmp(playerchoice, "BS") == 0 || strcmp(playerchoice, "bs") == 0)
+                {
+                    spellcast(&enemy, &player, "Blood Slash");
+                }
+                else if (strcmp(playerchoice, "Crit Strike") == 0 || strcmp(playerchoice, "crit strike") == 0 || strcmp(playerchoice, "CS") == 0 || strcmp(playerchoice, "cs") == 0)
+                {
+                    spellcast(&enemy, &player, "Crit Strike");
+                }
+                else if (strcmp(playerchoice, "All or Nothing") == 0 || strcmp(playerchoice, "all or nothing") == 0 || strcmp(playerchoice, "AON") == 0 || strcmp(playerchoice, "aon") == 0)
+                {
+                    spellcast(&enemy, &player, "All or Nothing");
+                }
+                else if (strcmp(playerchoice, "Dragon Punch") == 0 || strcmp(playerchoice, "dragon punch") == 0 || strcmp(playerchoice, "DP") == 0 || strcmp(playerchoice, "dp") == 0)
+                {
+                    spellcast(&enemy, &player, "Dragon Punch");
+                }
+                else if (strcmp(playerchoice, "Pyroblast") == 0 || strcmp(playerchoice, "pyroblast") == 0 || strcmp(playerchoice, "P") == 0 || strcmp(playerchoice, "p") == 0)
+                {
+                    spellcast(&enemy, &player, "Pyroblast");
+                }
+
+                else if (enemy.Current_State == PLEADING_STATE && (strcmp(playerchoice, "4") == 0 || strcmp(playerchoice, "Spare") == 0 || strcmp(playerchoice, "spare") == 0 || strcmp(playerchoice, "S") == 0 || strcmp(playerchoice, "s") == 0))
+                {
+                    EnemyPleading(&enemy, &player);
+                }
                 EnemyState(&enemy); // we check the enemystate after the attack!
-                printf("CHANGED STATE: %d\n", enemy.Current_State);
+                // printf("CHANGED STATE: %d\n", enemy.Current_State);
                 if (enemy.Current_State == INITIAL_STATE)
                 {
                     Enemyattack(&enemy, &player);
                 }
                 else if (enemy.Current_State == PLEADING_STATE)
                 {
-                    printf("The enemy suddenly shrinks back, pleading for you to show mercy!\n");
+                    printf("The enemy shrinks back, pleading for you to show mercy!\n");
+                }
+            }
+            if (enemy.Current_State == DEFEATED_STATE)
+            {
+                if (strcmp(enemy.pool, "Easy") == 0)
+                {
+                    levelup(&player);
+                    player.gold += enemy.level * 10;
+                }
+                else if (strcmp(enemy.pool, "Normal") == 0)
+                {
+                    levelup(&player);
+                    player.gold += enemy.level * 15;
+                }
+                else if (strcmp(enemy.pool, "Hard") == 0)
+                {
+                    levelup(&player);
+                    levelup(&player);
+                    player.gold += enemy.level * 20;
+                }
+                else if (strcmp(enemy.pool, "Very Hard") == 0)
+                {
+                    levelup(&player);
+                    levelup(&player);
+                    levelup(&player);
+                    player.gold += enemy.level * 30;
                 }
             }
         }
@@ -625,6 +944,12 @@ int main(int argc, char const *argv[])
             player.hp = player.maxhp;
             player.mana = player.maxmana;
             printf("You Healed up!\n");
+        }
+        else if (strcmp(playerchoice, "7") == 0)
+        {
+            player.hp = 1000000;
+            player.moxie += 1000;
+            printf("cheated");
         }
         else
         {
