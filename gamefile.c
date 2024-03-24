@@ -232,7 +232,24 @@ int itemhave(Player *player, char *item) // This is a helper function to check i
     return 0;
 }
 
-int spellhave(Player *player, char *spell) // This is a helper function to check if the player has the right item.
+void winloss(Player *player, char *loc_name) // This is a helper function to update win/loss per location.
+{
+    int i;
+    for (i = 0; i < 10; i++)
+    {
+        if (strcmp(player->items[i].location, loc_name) == 0)
+        {
+            if (player->status == ALIVE)
+            {
+                player->items[i].wins++;
+                return;
+            }
+            player->items[i].loss++;
+        }
+    }
+}
+
+int spellhave(Player *player, char *spell) // This is a helper function to check if the player has the right spell.
 {
     int i;
     for (i = 0; i < 10; i++)
@@ -927,6 +944,7 @@ int main(int argc, char const *argv[])
                     printf("The enemy shrinks back, pleading for you to show mercy!\n");
                 }
             }
+            winloss(&player, location);
             if (enemy.Current_State == DEFEATED_STATE)
             {
                 if (strcmp(enemy.pool, "Easy") == 0)
