@@ -279,33 +279,37 @@ void init_enemy(SpecificEnemy *Enemy, int level)
     Enemy->level = level;
     Enemy->enemyhp = level * 20;
     Enemy->strength = level * 2;
-    if (strcmp(difficulty, "Easy"))
+    if (strcmp(Enemy->pool, "Easy") == 0)
     {
         printf("You're fighting an easy enemy!\n");
+        // printf("The enemy is %s", Enemy->pool);
     }
 
-    else if (strcmp(difficulty, "Normal"))
+    else if (strcmp(Enemy->pool, "Normal") == 0)
     {
         printf("You're fighting a Normal enemy!\n");
+        // printf("The enemy is %s", Enemy->pool);
         Enemy->enemyhp += level * 3;
         Enemy->strength += level * 2 + 10;
     }
 
-    else if (strcmp(difficulty, "Hard"))
+    else if (strcmp(Enemy->pool, "Hard") == 0)
     {
         printf("You're fighting a Hard enemy!\n");
+        // printf("The enemy is %s", Enemy->pool);
         Enemy->enemyhp += level * 6;
         Enemy->strength += level * 3 + 5;
     }
 
-    else if (strcmp(difficulty, "Very Hard"))
+    else if (strcmp(Enemy->pool, "Very Hard") == 0)
     {
         printf("You're fighting a Very Hard enemy!\n");
+        // printf("The enemy is %s", Enemy->pool);
         Enemy->enemyhp += level * 8;
         Enemy->strength += level * 4;
     }
 
-    else if (strcmp(difficulty, "Boss"))
+    else if (strcmp(Enemy->pool, "Boss") == 0)
     {
         printf("You're fighting the final boss!\n");
         Enemy->enemyhp += level * 10;
@@ -378,8 +382,10 @@ void Enemyattack(SpecificEnemy *Enemy, Player *player)
 
 void EnemyPleading(SpecificEnemy *Enemy, Player *player)
 {
-    int pleadsuccess = rand() % 100 + player->moxie / 5;
-    if (pleadsuccess > 50)
+    int pleadsuccess = rand() % 100 + player->moxie / 10;
+    // printf("Your moxie is groovy, %d\n", player->moxie);
+    printf("You plead for your enemy to surrender with a value of %d", pleadsuccess);
+    if (pleadsuccess > 100)
     {
         printf("You successfully convinced the enemy to surrender!\n");
         player->gold += Enemy->level * 5;
@@ -423,7 +429,7 @@ int manaoverload(int manacost, int currentmana)
 }
 void spellcast(SpecificEnemy *Enemy, Player *player, char *spell)
 {
-    printf("The spell casted was %s", spell);
+    printf("\nThe spell casted was %s\n", spell);
     if (!spellhave(player, spell))
     {
         printf("You don't have this spell! You fumbled and were attacked by the Enemy!"); // Spell rejected
@@ -579,10 +585,11 @@ void spellcast(SpecificEnemy *Enemy, Player *player, char *spell)
 
 void levelup(Player *player)
 {
-    printf("You leveled up!\n");
+    printf("You leveled up!\n\n");
     player->level++;
-    if (strcmp(player->class, "Warrior"))
+    if (strcmp(player->class, "Warrior") == 0)
     {
+        printf("Warrior BOOST!");
         player->str += rand() % 3 + 5;
         player->magic += rand() % 1 + 1;
         player->maxmana += 2;
@@ -590,8 +597,9 @@ void levelup(Player *player)
         player->maxhp += 20;
     }
 
-    else if (strcmp(player->class, "Mage"))
+    else if (strcmp(player->class, "Mage") == 0)
     {
+        printf("Mage BOOST!");
         player->str += rand() % 1 + 2;
         player->magic += rand() % 3 + 3;
         player->maxmana += 10;
@@ -599,8 +607,9 @@ void levelup(Player *player)
         player->maxhp += 10;
     }
 
-    else if (strcmp(player->class, "Mage"))
+    else if (strcmp(player->class, "Thief") == 0)
     {
+        printf("Thief BOOST!");
         player->str += rand() % 2 + 2;
         player->magic += rand() % 2 + 2;
         player->maxmana += 5;
@@ -711,9 +720,14 @@ int main(int argc, char const *argv[])
             player.mana = player.maxmana;
             player.status = ALIVE;
         }
-        printf("What will you do now?\n");
+        printf("What will you do now?\n\n");
         printf("YOU are in TOWN. You can Quit (1), Save (2), Purchase (3), Battle(4), Talk (5) or Heal (6). \n");
-        printf("Your current HP, mana and gold are: %d, %d, %d\n", player.hp, player.mana, player.gold);
+        // printf("Your current HP, mana, level and gold are: %d, %d, %d, %d\n", player.hp, player.mana, player.level, player.gold);
+        printf("Your current HP: %d\n", player.hp);
+        printf("Your current mana: %d\n", player.mana);
+        printf("Your current level: %d\n", player.level);
+        printf("Your current gold: %d\n", player.gold);
+        printf("Your str:%d, magic:%d and moxie:%d\n", player.str, player.magic, player.moxie);
         print_spell(&player);
         printf("\n");
         fgets(playerchoice, sizeof(playerchoice), stdin);
@@ -826,14 +840,15 @@ int main(int argc, char const *argv[])
             {
                 printf("\nYour current HP: %d\n", player.hp);
                 printf("Your current mana: %d\n", player.mana);
+                printf("Your str:%d, magic:%d and moxie:%d\n", player.str, player.magic, player.moxie);
                 print_spell(&player);
-                printf("Enemy's current HP: %d\n", enemy.enemyhp);
+                printf("\nEnemy's current HP: %d\n\n", enemy.enemyhp);
                 // printf("INITIAL STATE: %d\n", enemy.Current_State);
                 printf("You can:\n");
                 printf("1 - Attack\n2 - Run\n");
                 if (enemy.Current_State == PLEADING_STATE)
                 {
-                    printf("3 - Spare your enemy! There is a %f chance it will work!\n", (float)(enemy.enemyhp) / (float)(enemy.enemymaxhp));
+                    printf("3 - Spare your enemy!");
                 }
                 printf("Other - Use your spells! (Name Them)\n");
                 fgets(playerchoice, sizeof(playerchoice), stdin);
@@ -893,9 +908,13 @@ int main(int argc, char const *argv[])
                     spellcast(&enemy, &player, "Pyroblast");
                 }
 
-                else if (enemy.Current_State == PLEADING_STATE && (strcmp(playerchoice, "4") == 0 || strcmp(playerchoice, "Spare") == 0 || strcmp(playerchoice, "spare") == 0 || strcmp(playerchoice, "S") == 0 || strcmp(playerchoice, "s") == 0))
+                else if (enemy.Current_State == PLEADING_STATE && (strcmp(playerchoice, "3") == 0 || strcmp(playerchoice, "Spare") == 0 || strcmp(playerchoice, "spare") == 0 || strcmp(playerchoice, "S") == 0 || strcmp(playerchoice, "s") == 0))
                 {
                     EnemyPleading(&enemy, &player);
+                }
+                else
+                {
+                    printf("You posted an invalid input!\n");
                 }
                 EnemyState(&enemy); // we check the enemystate after the attack!
                 // printf("CHANGED STATE: %d\n", enemy.Current_State);
@@ -913,17 +932,23 @@ int main(int argc, char const *argv[])
                 if (strcmp(enemy.pool, "Easy") == 0)
                 {
                     levelup(&player);
+                    printf("Defeated an %s enemy!\n", enemy.pool);
+                    printf("Gained %d gold!\n", enemy.level * 10);
                     player.gold += enemy.level * 10;
                 }
                 else if (strcmp(enemy.pool, "Normal") == 0)
                 {
                     levelup(&player);
+                    printf("Defeated an %s enemy!\n", enemy.pool);
+                    printf("Gained %d gold!\n", enemy.level * 15);
                     player.gold += enemy.level * 15;
                 }
                 else if (strcmp(enemy.pool, "Hard") == 0)
                 {
                     levelup(&player);
                     levelup(&player);
+                    printf("Defeated an %s enemy!\n", enemy.pool);
+                    printf("Gained %d gold!\n", enemy.level * 20);
                     player.gold += enemy.level * 20;
                 }
                 else if (strcmp(enemy.pool, "Very Hard") == 0)
@@ -931,7 +956,15 @@ int main(int argc, char const *argv[])
                     levelup(&player);
                     levelup(&player);
                     levelup(&player);
+                    printf("Defeated an %s enemy!\n", enemy.pool);
+
+                    printf("Gained %d gold!\n", enemy.level * 30);
                     player.gold += enemy.level * 30;
+                }
+
+                else if (strcmp(enemy.pool, "Boss") == 0)
+                {
+                    printf("You beat the game! Congrats! Now, back to Town!\n");
                 }
             }
         }
@@ -948,7 +981,7 @@ int main(int argc, char const *argv[])
         else if (strcmp(playerchoice, "7") == 0)
         {
             player.hp = 1000000;
-            player.moxie += 1000;
+            // player.moxie += 1000;
             printf("cheated");
         }
         else

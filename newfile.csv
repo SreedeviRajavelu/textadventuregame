@@ -1,5 +1,5 @@
 Class,Item,Howmany,HP,MaxHP,Gold,Level,Moxie,Magic,Str,Mana,MaxMana,Spells,Check,Location,Wins,Loss
-Warrior,Key,0,86,110,60,2,23,25,42,50,60,Fireball,0,GreenWood,0,0
+Warrior,Key,0,80,120,110,3,30,27,44,50,70,Fireball,0,GreenWood,0,0
 -,-,0,-,-,-,-,-,-,-,-,-,Lightning,0,Graveyard,0,0
 -,-,0,-,-,-,-,-,-,-,-,-,Great Slash,1,Forest,0,0
 -,-,0,-,-,-,-,-,-,-,-,-,Bullet Barrage,0,Volcano,0,0
