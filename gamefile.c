@@ -999,8 +999,8 @@ int main(int argc, char const *argv[])
         else if (strcmp(playerchoice, "7") == 0)
         {
             player.hp = 1000000;
-            // player.moxie += 1000;
-            printf("cheated");
+            player.moxie += 1000; // This is a cheat that lets you activate the pleading state.
+            printf("cheated!\n");
         }
         else
         {
