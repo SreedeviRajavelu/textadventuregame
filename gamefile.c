@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "pbPlots.h"
+#include "supportLib.h"
 
 // You can run the game with ./gamefile.exe <filehere> | <filehere> is only csv formatted file for the game. Try savegame.text.
 void flush_input() // this code just 'flushes' the buffer to prevent overflow. Maybe unnecessary?
@@ -44,6 +46,33 @@ typedef struct
         int loss;
     } items[10]; // Struct inside another struct. As of now, we only have 10 items. Player.items[0] = first item!
 } Player;
+
+void stock_item(Player *player, const char *filename, const char *csvfilename)
+{
+    // Player *player;
+    char itemchoice[50];
+    fgets(itemchoice, sizeof(itemchoice), stdin);
+    int found = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        // need to read thru textfile
+        printf("looping to get item\n");
+        printf("%s \n", player->items[i].itemName);
+        itemchoice[strcspn(itemchoice, "\n")] = '\0';
+        printf("%s \n", itemchoice);
+        if (strcmp(itemchoice, player->items[i].itemName) == 0)
+        {
+            player->items[i].quantity++;
+            printf("You obtained %s !\n", itemchoice);
+            found = 1;
+            break;
+        }
+    }
+    if (!found)
+    {
+        printf("Item not found!\n");
+    }
+}
 
 void save_game(Player *player, const char *filename, const char *csvfilename)
 {
@@ -738,7 +767,7 @@ int main(int argc, char const *argv[])
             player.status = ALIVE;
         }
         printf("What will you do now?\n\n");
-        printf("YOU are in TOWN. You can Quit (1), Save (2), Purchase (3), Battle(4), Talk (5) or Heal (6). \n");
+        printf("YOU are in TOWN. You can Quit (1), Save (2), Purchase (3), Battle(4), Talk (5) or Heal (6) or Stock Up (7). \n");
         // printf("Your current HP, mana, level and gold are: %d, %d, %d, %d\n", player.hp, player.mana, player.level, player.gold);
         printf("Your current HP: %d\n", player.hp);
         printf("Your current mana: %d\n", player.mana);
@@ -996,11 +1025,17 @@ int main(int argc, char const *argv[])
             player.mana = player.maxmana;
             printf("You Healed up!\n");
         }
-        else if (strcmp(playerchoice, "7") == 0)
+        else if (strcmp(playerchoice, "7") == 0 || strcmp(playerchoice, "Stock Up") == 0 || strcmp(playerchoice, "stock up") == 0 || strcmp(playerchoice, "STOCK UP") == 0 || strcmp(playerchoice, "su") == 0 || strcmp(playerchoice, "SU") == 0)
+        {
+
+            stock_item(&player, filename, csvfile);
+            printf("You obtained item  !\n");
+        }
+        else if (strcmp(playerchoice, "8") == 0)
         {
             player.hp = 1000000;
             player.moxie += 1000; // This is a cheat that lets you activate the pleading state.
-            printf("cheated!\n");
+            printf("You cheated !\n");
         }
         else
         {
