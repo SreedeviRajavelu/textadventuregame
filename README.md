@@ -1,12 +1,16 @@
-# To compile the gamefile.c type in gcc gamefile.c -o gamefile -lregex
+## To compile the gamefile.c type in:
 
-# To start the game, compile it and type in ./gamefile.exe startingfile.txt csvfilenameToGenerate.csv
+gcc gamefile.c -o gamefile -lregex
+
+## To start the game, compile it and type in:
+
+./gamefile.exe startingfile.txt csvfilenameToGenerate.csv
 
 startingfile.txt is a starter textfile with initial state values for game which will get updated at each save state.
 
 So the starter text file is mandatory to have in same directory as game file at start of game.
 
-# Information from make.sh file on how to compile and run scripts for plotting of graphs
+## Information from make.sh file on how to compile and run scripts for plotting of graphs
 
 gcc -c pbPlots.c -std=c99 -O3 -march=native
 
