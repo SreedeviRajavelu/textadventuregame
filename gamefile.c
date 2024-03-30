@@ -74,19 +74,20 @@ void stock_item(Player *player, const char *filename, const char *csvfilename)
     }
 }
 // Function to draw the title on the bar graph
-void DrawTitle(RGBABitmapImage *canvas, const char *title)
-{
-    double canvasWidth = ImageWidth(canvas);
-    double xPadding = canvasWidth / 10.0;
-    double yPadding = xPadding;
+// void DrawTitle(RGBABitmapImage *canvas, const char *title)
+// {
+//     double canvasWidth = ImageWidth(canvas);
+//     double xPadding = canvasWidth / 10.0;
+//     double yPadding = xPadding;
 
-    DrawText(canvas, floor(canvasWidth / 2.0 - GetTextWidth(title, strlen(title)) / 2.0), floor(yPadding / 3.0), title, strlen(title), GetBlack());
-}
+//     DrawText(canvas, floor(canvasWidth / 2.0 - GetTextWidth(title, strlen(title)) / 2.0), floor(yPadding / 3.0), title, strlen(title), GetBlack());
+// }
 void plot_graph(Player *player, const char *filename, const char *csvfilename)
 {
     printf("Enter name for graph file to be save and then press enter:\n");
     char graphName[50];
     fgets(graphName, sizeof(graphName), stdin);
+    graphName[strcspn(graphName, "\n")] = '\0';
 
     // prepare data for the bar graph
     size_t numItems = 0;
@@ -110,18 +111,18 @@ void plot_graph(Player *player, const char *filename, const char *csvfilename)
         RGBABitmapImage *barPlotImage = DrawBarPlot(width, height, quantities, numItems);
 
         // Add title to the bar graph using the custom function
-        DrawTitle(barPlotImage, "Inventory");
+        // DrawTitle(barPlotImage, "Inventory");
         // Reference to code from pbPlots.c
         // DrawText(canvas, floor(ImageWidth(canvas)/2.0 - GetTextWidth(settings->title, settings->titleLength)/2.0), floor(yPadding/3.0), settings->title, settings->titleLength, GetBlack());
         // DrawTextUpwards(canvas, 10.0, floor(ImageHeight(canvas)/2.0 - GetTextWidth(settings->yLabel, settings->yLabelLength)/2.0), settings->yLabel, settings->yLabelLength, GetBlack());
         // Add labels to the x-axis (item names)
-        for (size_t i = 0; i < numItems; i++)
-        {
-            DrawText(barPlotImage, 70 + i * 70, 550, itemNames[i], 12, CreateRGBColor(0, 0, 0), width / 100);
-        }
+        // for (size_t i = 0; i < numItems; i++)
+        // {
+        //     DrawText(barPlotImage, 70 + i * 70, 550, itemNames[i], 12, CreateRGBColor(0, 0, 0), width / 100);
+        // }
 
-        // Add label to the y-axis
-        DrawText(barPlotImage, 20, 300, "Quantity", 12, CreateRGBColor(0, 0, 0), width / 100);
+        // // Add label to the y-axis
+        // DrawText(barPlotImage, 20, 300, "Quantity", 12, CreateRGBColor(0, 0, 0), width / 100);
 
         size_t length;
         double *pngData = ConvertToPNG(&length, barPlotImage);
