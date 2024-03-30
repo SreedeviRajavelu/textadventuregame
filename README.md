@@ -1,3 +1,11 @@
+## SUMMARY ON COMPILING AND STARTING GAME FILE
+
+gcc -c gamefile.c -std=c99 -O3 -march=native -lregex
+
+gcc gamefile.o pbPlots.o supportLib.o -lm -o inventory_graph -lregex
+
+./inventory_graph startingfile.txt 30march_1123PM.csv
+
 ## To compile the gamefile.c type in:
 
 gcc gamefile.c -o gamefile -lregex
@@ -22,6 +30,8 @@ So the starter text file is mandatory to have in same directory as game file at 
 
 gcc bar_graph.o pbPlots.o supportLib.o -lm -o bar_graph -lregex
 gcc gamefile.o pbPlots.o supportLib.o -lm -o inventory_graph -lregex
+
+Argument after -o is for name of executable to be run
 
 ## Information from make.sh file on how to compile and run scripts for plotting of graphs
 
