@@ -1028,8 +1028,10 @@ int main(int argc, char const *argv[])
         else if (strcmp(playerchoice, "7") == 0 || strcmp(playerchoice, "Stock Up") == 0 || strcmp(playerchoice, "stock up") == 0 || strcmp(playerchoice, "STOCK UP") == 0 || strcmp(playerchoice, "su") == 0 || strcmp(playerchoice, "SU") == 0)
         {
 
+            printf("What item do you want to get? Type name of one item and press enter. Entry is case-sensitive. \n");
+            printf("Key | Potion | Sword | Shield | Helmet | Car | Bike | Gun | Explosive | DungeonKey \n");
             stock_item(&player, filename, csvfile);
-            printf("You obtained item  !\n");
+            // printf("You obtained item  !\n");
         }
         else if (strcmp(playerchoice, "8") == 0)
         {
