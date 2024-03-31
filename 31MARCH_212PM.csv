@@ -1,0 +1,11 @@
+Class,Item,Howmany,HP,MaxHP,Gold,Level,Moxie,Magic,Str,Mana,MaxMana,Spells,Check,Location,Wins,Loss
+Mage,Key,0,100,100,1,50,20,30,20,50,50,Fireball,1,GreenWood,0,0
+-,Potion,1,-,-,-,-,-,-,-,-,-,Lightning,1,Graveyard,0,0
+-,Sword,1,-,-,-,-,-,-,-,-,-,Great Slash,0,Forest,0,0
+-,Shield,1,-,-,-,-,-,-,-,-,-,Bullet Barrage,0,Volcano,0,0
+-,Helmet,1,-,-,-,-,-,-,-,-,-,Heaven Heal,0,Castle,0,0
+-,Car,2,-,-,-,-,-,-,-,-,-,Blood Slash,0,FairyTrove,0,0
+-,Bike,1,-,-,-,-,-,-,-,-,-,Crit Strike,0,GoblinCave,0,0
+-,Gun,4,-,-,-,-,-,-,-,-,-,All or Nothing,0,DragonNest,0,0
+-,Explosive,1,-,-,-,-,-,-,-,-,-,Dragon Punch,0,Vast Valley,0,0
+-,DungeonKey,1,-,-,-,-,-,-,-,-,-,Pyroblast,0,FinalDungeon,0,0

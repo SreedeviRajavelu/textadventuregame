@@ -111,7 +111,8 @@ void plot_graph(Player *player, const char *filename, const char *csvfilename)
         // create the bar plot
 
         double width = 1000;
-        double height = 1400;
+        // double height = 1400;
+        double height = 1800;
         RGBABitmapImage *barPlotImage = DrawBarPlot(width, height, quantities, numItems);
 
         // Add title to the bar graph using the custom function
