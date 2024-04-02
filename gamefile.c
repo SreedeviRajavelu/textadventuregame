@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "pbPlots.h"
+#include "supportLib.h"
 
 // You can run the game with ./gamefile.exe <filehere> | <filehere> is only csv formatted file for the game. Try savegame.text.
 void flush_input() // this code just 'flushes' the buffer to prevent overflow. Maybe unnecessary?
@@ -44,6 +46,112 @@ typedef struct
         int loss;
     } items[10]; // Struct inside another struct. As of now, we only have 10 items. Player.items[0] = first item!
 } Player;
+
+void stock_item(Player *player, const char *filename, const char *csvfilename)
+{
+    // Player *player;
+    char itemchoice[50];
+    fgets(itemchoice, sizeof(itemchoice), stdin);
+    int found = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        // need to read thru textfile
+        printf("looping to get item\n");
+        printf("%s \n", player->items[i].itemName);
+        itemchoice[strcspn(itemchoice, "\n")] = '\0';
+        printf("%s \n", itemchoice);
+        if (strcmp(itemchoice, player->items[i].itemName) == 0)
+        {
+            player->items[i].quantity++;
+            printf("You obtained %s !\n", itemchoice);
+            found = 1;
+            break;
+        }
+    }
+    if (!found)
+    {
+        printf("Item not found!\n");
+    }
+}
+// Function to draw the title on the bar graph
+// void DrawTitle(RGBABitmapImage *canvas, const char *title)
+// {
+//     double canvasWidth = ImageWidth(canvas);
+//     double xPadding = canvasWidth / 10.0;
+//     double yPadding = xPadding;
+
+//     DrawText(canvas, floor(canvasWidth / 2.0 - GetTextWidth(title, strlen(title)) / 2.0), floor(yPadding / 3.0), title, strlen(title), GetBlack());
+// }
+void plot_graph(Player *player, const char *filename, const char *csvfilename)
+{
+    printf("Enter name for graph file to be save and then press enter:\n");
+    char graphName[50];
+    fgets(graphName, sizeof(graphName), stdin);
+    graphName[strcspn(graphName, "\n")] = '\0';
+
+    // prepare data for the bar graph
+    size_t numItems = 0;
+    double quantities[10];
+    const char *itemNames[15];
+    // wchar_t *itemNames[10]; // Change type to wchar_t*
+    // extract item names and quantities from the player's inventory
+    for (int i = 0; i < 10; i++)
+    {
+        if (player->items[i].quantity > 0)
+        {
+            // convert item names to wchar_t*
+            // size_t len = strlen(player->items[i].itemName) + 1;
+            // itemNames[numItems] = (wchar_t *)malloc(len * sizeof(wchar_t));
+            // mbstowcs(itemNames[numItems], player->items[i].itemName, len);
+            itemNames[numItems] = player->items[i].itemName;
+            quantities[numItems] = player->items[i].quantity;
+            numItems++;
+        }
+
+        // create the bar plot
+
+        double width = 1000;
+        // double height = 1400;
+        double height = 1800;
+        RGBABitmapImage *barPlotImage = DrawBarPlot(width, height, quantities, numItems);
+
+        // Add title to the bar graph using the custom function
+        // DrawTitle(barPlotImage, "Inventory");
+        // Reference to code from pbPlots.c
+        // DrawText(canvas, floor(ImageWidth(canvas)/2.0 - GetTextWidth(settings->title, settings->titleLength)/2.0), floor(yPadding/3.0), settings->title, settings->titleLength, GetBlack());
+        // DrawTextUpwards(canvas, 10.0, floor(ImageHeight(canvas)/2.0 - GetTextWidth(settings->yLabel, settings->yLabelLength)/2.0), settings->yLabel, settings->yLabelLength, GetBlack());
+
+        // Add labels to the x-axis (item names)
+        // double charWidth = 8.0;
+        // double spacing = 2.0;
+        // for (size_t i = 0; i < numItems; i++)
+        // {
+        //     DrawText(barPlotImage, 70 + i * (charWidth + spacing), 550, itemNames[i], strlen(itemNames[i]), CreateRGBColor(0, 0, 0)); // DrawText(barPlotImage, 70 + i * 70, 550, itemNames[i], 12, CreateRGBColor(0, 0, 0), width / 100);
+        // }
+
+        // // Free allocated memory for item names
+        // for (size_t i = 0; i < numItems; i++)
+        // {
+        //     free(itemNames[i]);
+        // }
+        // // Add label to the y-axis
+        // DrawText(barPlotImage, 20, 300, "Quantity", 12, CreateRGBColor(0, 0, 0), width / 100);
+        // Convert graph name to wchar_t*
+        // size_t len = strlen(graphName) + 1;
+        // wchar_t *graphNameW = (wchar_t *)malloc(len * sizeof(wchar_t));
+        // mbstowcs(graphNameW, graphName, len);
+
+        // Save the bar plot image to a file
+
+        size_t length;
+        double *pngData = ConvertToPNG(&length, barPlotImage);
+
+        // Save the bar plot image to a file
+        WriteToFile(pngData, length, graphName);
+        // Free allocated memory
+        // free(graphNameW);
+    }
+}
 
 void save_game(Player *player, const char *filename, const char *csvfilename)
 {
@@ -738,7 +846,7 @@ int main(int argc, char const *argv[])
             player.status = ALIVE;
         }
         printf("What will you do now?\n\n");
-        printf("YOU are in TOWN. You can Quit (1), Save (2), Purchase (3), Battle(4), Talk (5) or Heal (6). \n");
+        printf("YOU are in TOWN. You can Quit (1), Save (2), Purchase (3), Battle(4), Talk (5) or Heal (6) or Stock Up (7) or Graph (8). \n");
         // printf("Your current HP, mana, level and gold are: %d, %d, %d, %d\n", player.hp, player.mana, player.level, player.gold);
         printf("Your current HP: %d\n", player.hp);
         printf("Your current mana: %d\n", player.mana);
@@ -996,11 +1104,24 @@ int main(int argc, char const *argv[])
             player.mana = player.maxmana;
             printf("You Healed up!\n");
         }
-        else if (strcmp(playerchoice, "7") == 0)
+        else if (strcmp(playerchoice, "7") == 0 || strcmp(playerchoice, "Stock Up") == 0 || strcmp(playerchoice, "stock up") == 0 || strcmp(playerchoice, "STOCK UP") == 0 || strcmp(playerchoice, "su") == 0 || strcmp(playerchoice, "SU") == 0)
+        {
+
+            printf("What item do you want to get? Type name of one item and press enter. Entry is case-sensitive. \n");
+            printf("Key | Potion | Sword | Shield | Helmet | Car | Bike | Gun | Explosive | DungeonKey \n");
+            stock_item(&player, filename, csvfile);
+            // printf("You obtained item  !\n");
+        }
+        else if (strcmp(playerchoice, "8") == 0 || strcmp(playerchoice, "Graph") == 0 || strcmp(playerchoice, "graph") == 0 || strcmp(playerchoice, "GRAPH") == 0)
+        {
+            printf("Plotting graph for inventory of items, wins and losses. \n");
+            plot_graph(&player, filename, csvfile);
+        }
+        else if (strcmp(playerchoice, "9") == 0)
         {
             player.hp = 1000000;
             player.moxie += 1000; // This is a cheat that lets you activate the pleading state.
-            printf("cheated!\n");
+            printf("You cheated !\n");
         }
         else
         {
