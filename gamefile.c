@@ -51,7 +51,7 @@ void stock_item(Player *player, const char *filename, const char *csvfilename)
 {
     // Player *player;
     char itemchoice[50];
-    fgets(itemchoice, sizeof(itemchoice), stdin);
+    fgets(itemchoice, 50, stdin);
     int found = 0;
     for (int i = 0; i < 10; i++)
     {
