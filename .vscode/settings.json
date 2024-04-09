@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "supportlib.h": "c",
+        "pbplots.h": "c"
+    }
+}

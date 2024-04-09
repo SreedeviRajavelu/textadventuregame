@@ -86,7 +86,7 @@ void plot_graph(Player *player, const char *filename, const char *csvfilename)
 {
     printf("Enter name for graph file to be save and then press enter:\n");
     char graphName[50];
-    fgets(graphName, sizeof(graphName), stdin);
+    fgets(graphName, 50, stdin);
     graphName[strcspn(graphName, "\n")] = '\0';
 
     // prepare data for the bar graph
@@ -357,6 +357,18 @@ void winloss(Player *player, char *loc_name) // This is a helper function to upd
     }
 }
 
+int wincheck(Player *player, char *loc_name) // This is a helper function to update win/loss per location.
+{
+    int i;
+    for (i = 0; i < 10; i++)
+    {
+        if (strcmp(player->items[i].location, loc_name) == 0)
+        {
+            return player->items[i].wins;
+        }
+    }
+}
+
 int spellhave(Player *player, char *spell) // This is a helper function to check if the player has the right spell.
 {
     int i;
@@ -372,6 +384,19 @@ int spellhave(Player *player, char *spell) // This is a helper function to check
         }
     }
     return 0;
+}
+
+char *nextboughtspell(Player *player)
+{
+    int i;
+    for (i = 4; i < 10; i++)
+    {
+        if (player->items[i].check == 0)
+        {
+            return player->items[i].spells;
+        }
+    }
+    return "NULL";
 }
 
 typedef enum
@@ -664,7 +689,7 @@ void spellcast(SpecificEnemy *Enemy, Player *player, char *spell)
         player->mana -= 30;
     }
 
-    else if (strcmp(spell, "All or Nothing!") == 0)
+    else if (strcmp(spell, "All or Nothing") == 0)
     {
         if (manaoverload(20, player->mana))
         {
@@ -756,6 +781,8 @@ int main(int argc, char const *argv[])
     char playerchoice[50]; // Increased buffer size to accommodate longer item names
     int keeplaying = 1;
     int keepchoosingbattle = 1;
+    int wincon;
+    char boughtspell[50];
     int run;
     char *location;
     srand((time(NULL))); // we randomise a seed
@@ -869,7 +896,23 @@ int main(int argc, char const *argv[])
         }
         else if (strcmp(playerchoice, "Purchase") == 0 || strcmp(playerchoice, "purchase") == 0 || strcmp(playerchoice, "3") == 0 || strcmp(playerchoice, "P") == 0 || strcmp(playerchoice, "p") == 0)
         {
-            printf("You bought some stuff!");
+            strcpy(boughtspell, nextboughtspell(&player));
+            if (strcmp(boughtspell, "NULL") == 0)
+            {
+                printf("You purchased every spell!\n");
+            }
+            else
+            {
+                if (player.gold - 100 < 0)
+                {
+                    printf("Not enough gold to buy spell!");
+                }
+                else
+                {
+                    printf("Bought new spell!");
+                    attainspell(&player, boughtspell);
+                }
+            }
         }
         else if (strcmp(playerchoice, "Battle") == 0 || strcmp(playerchoice, "battle") == 0 || strcmp(playerchoice, "4") == 0 || strcmp(playerchoice, "B") == 0 || strcmp(playerchoice, "b") == 0)
         {
@@ -940,7 +983,7 @@ int main(int argc, char const *argv[])
                 }
                 else if (strcmp(playerchoice, "FinalDungeon") == 0 || strcmp(playerchoice, "finaldungeon") == 0 || strcmp(playerchoice, "FD") == 0 || strcmp(playerchoice, "fd") == 0 || strcmp(playerchoice, "10") == 0)
                 {
-                    if (itemhave(&player, "Dungeon Key"))
+                    if (itemhave(&player, "DungeonKey"))
                     {
                         keepchoosingbattle = 0;
                         init_enemy(&enemy, 30);
@@ -973,7 +1016,7 @@ int main(int argc, char const *argv[])
                 printf("1 - Attack\n2 - Run\n");
                 if (enemy.Current_State == PLEADING_STATE)
                 {
-                    printf("3 - Spare your enemy!");
+                    printf("3 - Spare your enemy!\n");
                 }
                 printf("Other - Use your spells! (Name Them)\n");
                 fgets(playerchoice, sizeof(playerchoice), stdin);
@@ -1096,7 +1139,17 @@ int main(int argc, char const *argv[])
         }
         else if (strcmp(playerchoice, "Talk") == 0 || strcmp(playerchoice, "talk") == 0 || strcmp(playerchoice, "5") == 0 || strcmp(playerchoice, "T") == 0 || strcmp(playerchoice, "t") == 0)
         {
-            printf("You talked for a while!");
+            wincon = wincheck(&player, "Vast Valley");
+            printf("You beat %d monsters from Vast Valley!\n", wincon);
+            if (wincon < 5)
+            {
+                printf("The dungeon master will only give you the key if you beat 5 monsters from Vast Valley\n");
+            }
+            else
+            {
+                printf("Obtained Dungeon Key!");
+                player.items[9].quantity += 1;
+            }
         }
         else if (strcmp(playerchoice, "Heal") == 0 || strcmp(playerchoice, "heal") == 0 || strcmp(playerchoice, "6") == 0 || strcmp(playerchoice, "H") == 0 || strcmp(playerchoice, "h") == 0)
         {
@@ -1120,6 +1173,7 @@ int main(int argc, char const *argv[])
         else if (strcmp(playerchoice, "9") == 0)
         {
             player.hp = 1000000;
+            player.gold += 1000;
             player.moxie += 1000; // This is a cheat that lets you activate the pleading state.
             printf("You cheated !\n");
         }
