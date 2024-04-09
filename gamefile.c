@@ -1139,16 +1139,23 @@ int main(int argc, char const *argv[])
         }
         else if (strcmp(playerchoice, "Talk") == 0 || strcmp(playerchoice, "talk") == 0 || strcmp(playerchoice, "5") == 0 || strcmp(playerchoice, "T") == 0 || strcmp(playerchoice, "t") == 0)
         {
-            wincon = wincheck(&player, "Vast Valley");
-            printf("You beat %d monsters from Vast Valley!\n", wincon);
-            if (wincon < 5)
+            if (player.items[9].quantity > 0)
             {
-                printf("The dungeon master will only give you the key if you beat 5 monsters from Vast Valley\n");
+                printf("The townspeople are gossiping!\n");
             }
             else
             {
-                printf("Obtained Dungeon Key!");
-                player.items[9].quantity += 1;
+                wincon = wincheck(&player, "Vast Valley");
+                printf("You beat %d monsters from Vast Valley!\n", wincon);
+                if (wincon < 5)
+                {
+                    printf("The dungeon master will only give you the key if you beat 5 monsters from Vast Valley\n");
+                }
+                else
+                {
+                    printf("Obtained Dungeon Key!");
+                    player.items[9].quantity += 1; // we already know where dungeon key is stored. This is a constant
+                }
             }
         }
         else if (strcmp(playerchoice, "Heal") == 0 || strcmp(playerchoice, "heal") == 0 || strcmp(playerchoice, "6") == 0 || strcmp(playerchoice, "H") == 0 || strcmp(playerchoice, "h") == 0)
