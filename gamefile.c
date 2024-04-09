@@ -288,6 +288,10 @@ int load_game(Player *player, const char *filename)
     }
 
     fclose(file);
+    printf("THE player's hp is %d\n", player->hp);
+    printf("THE player's max hp is %d\n", player->maxhp);
+    printf("THE player's level is %d\n", player->level);
+    printf("THE player's gold is %d\n", player->gold);
     return 0;
 }
 
@@ -509,7 +513,7 @@ void EnemyPleading(SpecificEnemy *Enemy, Player *player)
 {
     int pleadsuccess = rand() % 100 + player->moxie / 10;
     // printf("Your moxie is groovy, %d\n", player->moxie);
-    printf("You plead for your enemy to surrender with a value of %d", pleadsuccess);
+    printf("You plead for your enemy to surrender with a value of %d\n", pleadsuccess);
     if (pleadsuccess > 100)
     {
         printf("You successfully convinced the enemy to surrender!\n");
@@ -973,7 +977,7 @@ int main(int argc, char const *argv[])
                 printf("1 - Attack\n2 - Run\n");
                 if (enemy.Current_State == PLEADING_STATE)
                 {
-                    printf("3 - Spare your enemy!");
+                    printf("3 - Spare your enemy!\n");
                 }
                 printf("Other - Use your spells! (Name Them)\n");
                 fgets(playerchoice, sizeof(playerchoice), stdin);
@@ -1049,7 +1053,10 @@ int main(int argc, char const *argv[])
                 }
                 else if (enemy.Current_State == PLEADING_STATE)
                 {
-                    printf("The enemy shrinks back, pleading for you to show mercy!\n");
+                    if (player.status == ALIVE)
+                    {
+                        printf("The enemy shrinks back, pleading for you to show mercy!\n");
+                    }
                 }
             }
             winloss(&player, location);
