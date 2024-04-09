@@ -260,8 +260,8 @@ int load_game(Player *player, const char *filename)
            &player->items[0].quantity, // %d - integer
            &player->hp,                // %d - integer
            &player->maxhp,             // %d - integer
-           &player->level,             // %d - integer
            &player->gold,              // %d - integer
+           &player->level,             // %d - integer
            &player->moxie,             // %d - integer
            &player->magic,             // %d - integer
            &player->str,               // %d - integer
@@ -288,10 +288,6 @@ int load_game(Player *player, const char *filename)
     }
 
     fclose(file);
-    printf("THE player's hp is %d\n", player->hp);
-    printf("THE player's max hp is %d\n", player->maxhp);
-    printf("THE player's level is %d\n", player->level);
-    printf("THE player's gold is %d\n", player->gold);
     return 0;
 }
 
