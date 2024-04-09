@@ -260,8 +260,8 @@ int load_game(Player *player, const char *filename)
            &player->items[0].quantity, // %d - integer
            &player->hp,                // %d - integer
            &player->maxhp,             // %d - integer
-           &player->level,             // %d - integer
            &player->gold,              // %d - integer
+           &player->level,             // %d - integer
            &player->moxie,             // %d - integer
            &player->magic,             // %d - integer
            &player->str,               // %d - integer
