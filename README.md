@@ -4,11 +4,11 @@ gcc -c gamefile.c -std=c99 -O3 -march=native -lregex
 
 gcc gamefile.o pbPlots.o supportLib.o -lm -o gamefile -lregex
 
-./gamefile startingfile.txt csvfilenameToGenerate.csv
+./gamefile.exe startingfile.txt csvfilenameToGenerate.csv
 
 ### ARGUMENTS IN COMMAND LINE
 
-./gamefile startingfile.txt csvfilenameToGenerate.csv
+./gamefile.exe startingfile.txt csvfilenameToGenerate.csv
 
 startingfile.txt is a starter textfile with initial state values for game which will get updated at each save state.
 
