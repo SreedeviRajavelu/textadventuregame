@@ -4,7 +4,7 @@ gcc -c gamefile.c -std=c99 -O3 -march=native -lregex
 
 gcc gamefile.o pbPlots.o supportLib.o -lm -o gamefile -lregex
 
-./gamefile startingfile.txt csvfilenameToGenerate.csv
+./gamefile.exe startingfile.txt csvfilenameToGenerate.csv
 
 ### ARGUMENTS IN COMMAND LINE
 
