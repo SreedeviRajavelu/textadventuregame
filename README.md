@@ -5,9 +5,13 @@ make CSVFILE="csv_name.csv" run
 ## SUMMARY ON COMPILING AND STARTING GAME FILE WITHOUT USING MAKEFILE
 
 gcc -c gamefile.c -std=c99 -O3 -march=native
+
 gcc -c pbPlots.c -std=c99 -O3 -march=native
+
 gcc -c supportLib.c -std=c99 -O3 -march=native
+
 gcc gamefile.o pbPlots.o supportLib.o -lm -lregex -o gamefile
+
 ./gamefile.exe startingfile.txt csvfilenameToGenerate.csv
 
 ### ARGUMENTS IN COMMAND LINE
